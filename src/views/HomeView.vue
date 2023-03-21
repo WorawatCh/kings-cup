@@ -91,13 +91,13 @@ function onStart(){
 
 function onNextCard(){
     onCardAnimation.value = false
-    cardIndex.value++
+    setTimeout( function(){cardIndex.value++ },125)
     onCardAnimation.value = true
     if(drawingDeck.value[cardIndex.value].value == 'KING'){
         kingCard.value.push(drawingDeck.value[cardIndex.value])
     }
     onNextPlayer()
-    
+
     // setTimeout( function(){ 
     //     onCardAnimation.value = true
     //     setTimeout( function(){ 
