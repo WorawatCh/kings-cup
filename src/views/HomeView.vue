@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { ref,onBeforeUpdate, onUpdated } from 'vue';
 import InputText from 'primevue/inputtext';
 
 const onCardAnimation = ref(false)
@@ -35,6 +35,16 @@ const rules = ref({
     'KING': 'King',
 })
 
+onBeforeUpdate(() => {
+    // onCardAnimation.value = true
+    console.log('onBeforeUpdate called!')
+})
+
+onUpdated(() => {
+    // onCardAnimation.value = false
+  console.log('onUpdated called!')
+})
+
 function shufflePlayer(array){
     for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -60,7 +70,7 @@ async function onCreateDeck(){
             gamingDeck.value.remaining = data.remaining
             drawingDeck.value = data.cards
         }
-        onCardAnimation.value = true
+        // onCardAnimation.value = true
         console.log('drawingDeck',drawingDeck.value)
         
     })
@@ -68,6 +78,8 @@ async function onCreateDeck(){
 function onDarwCard(){
     isFirstDraw.value = true
     shufflePlayer(playerName.value)
+    // onCardAnimation.value = true
+    onNextPlayer()
     console.log('cardIndex',cardIndex.value)
     // fetch("https://deckofcardsapi.com/api/deck/"+deckTemplate.value.deck_id+"/draw/?count=52")
     // .then((response) => response.json())
@@ -90,14 +102,19 @@ function onStart(){
 }
 
 function onNextCard(){
-    onCardAnimation.value = false
-    cardIndex.value++
-    onCardAnimation.value = true
-    if(drawingDeck.value[cardIndex.value].value == 'KING'){
+    // onCardAnimation.value = false
+    setTimeout( function(){
+        drawingDeck.value.splice(0, 1);
+    },200)
+    // setTimeout( function(){
+    //     onCardAnimation.value = true
+    // },500)
+    
+    if(drawingDeck.value[0].value == 'KING'){
         kingCard.value.push(drawingDeck.value[cardIndex.value])
     }
     onNextPlayer()
-    
+
     // setTimeout( function(){ 
     //     onCardAnimation.value = true
     //     setTimeout( function(){ 
@@ -148,7 +165,11 @@ function checkEndGame(){
             <button type="button" class="btn btn-primary btn-lg start-btn mt-3" @click="onStart()">Start</button>
         </div>
         <div class="button-header" v-if="isReady">
-            <button type="button" class="btn btn-primary btn-lg start-btn  mt-3" @click="onDarwCard()" v-if="!isFirstDraw">Draw</button>
+            <img id="card" class="img-back-card" role="button" src="/src/assets/back.png" alt=""  @click="onDarwCard()"  v-if="!isFirstDraw">
+            <div class="container detail-container mt-3"  v-if="!isFirstDraw">
+                <h3>{{ playerName[playerIndex] }} Turn</h3>
+            </div>
+            <!-- <button type="button" class="btn btn-primary btn-lg start-btn  mt-3" @click="onDarwCard()" v-if="!isFirstDraw">Draw</button> -->
         </div>
 
         <div class="player mt-4"  v-if="!isReady && isStart">
@@ -168,10 +189,11 @@ function checkEndGame(){
             <button type="button" class="btn btn-primary start-btn mt-4" @click="onReady()" :disabled="playerName.length ==0 || playerName[0] == ''">Ready</button>
         </div>
 
-        <div class="cards" v-if="(drawingDeck.length > 1) && isFirstDraw && !checkEndGame() ">
-            <img id="card" class="img-card w-20" role="button" :src="drawingDeck[cardIndex].image" alt="" :class="{'flip-in-hor-top':onCardAnimation}" @click="onNextCard()">
+        <div class="cards" v-if="isFirstDraw && !checkEndGame() ">
+            <!-- :class="{'flip-in-hor-top':onCardAnimation}" -->
+            <img class="img-card w-20"  :src="drawingDeck[0].image" alt=""  @click="onNextCard()">
                 <div class="container detail-container mt-3">
-                    <h3>{{ rules[drawingDeck[cardIndex].value] }}</h3>
+                    <h3>{{ rules[drawingDeck[0].value] }}</h3>
                     <h3>{{ playerName[playerIndex] }} Turn</h3>
                 </div>
         </div>
@@ -184,6 +206,9 @@ function checkEndGame(){
 </template>
 
 <style scoped>
+.img-back-card{
+    width: 73%;
+}
 @media only screen and (max-width: 700px) {
     .header span {
         font-size: 50px !important;
@@ -195,14 +220,42 @@ function checkEndGame(){
 .detail-container{
     color: white;
  }
-.img-card:active{
-    -webkit-animation: flip-in-hor-top 1.5s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
-	        animation: flip-in-hor-top 1.5s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
+ .img-card:active{
+    -webkit-animation: flip-out-hor-top 1.5s cubic-bezier(0.550, 0.085, 0.680, 0.530) both;
+	        animation: flip-out-hor-top 1.5s cubic-bezier(0.550, 0.085, 0.680, 0.530) both;
+ }
+ @-webkit-keyframes flip-out-hor-top {
+  0% {
+    -webkit-transform: rotateX(0);
+            transform: rotateX(0);
+    opacity: 1;
+  }
+  100% {
+    -webkit-transform: rotateX(70deg);
+            transform: rotateX(70deg);
+    opacity: 0;
+  }
 }
-.flip-in-hor-top {
+@keyframes flip-out-hor-top {
+  0% {
+    -webkit-transform: rotateX(0);
+            transform: rotateX(0);
+    opacity: 1;
+  }
+  100% {
+    -webkit-transform: rotateX(70deg);
+            transform: rotateX(70deg);
+    opacity: 0;
+  }
+}
+ .img-card{
+    -webkit-animation: flip-in-hor-top  1.5s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
+	        animation: flip-in-hor-top  1.5s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
+}
+/* .flip-in-hor-top {
 	-webkit-animation: flip-in-hor-top 1.5s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
 	        animation: flip-in-hor-top 1.5s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
-}
+} */
  @-webkit-keyframes flip-in-hor-top {
   0% {
     -webkit-transform: rotateX(-80deg);
