@@ -35,16 +35,6 @@ const rules = ref({
     'KING': 'King',
 })
 
-onBeforeUpdate(() => {
-    // onCardAnimation.value = true
-    console.log('onBeforeUpdate called!')
-})
-
-onUpdated(() => {
-    // onCardAnimation.value = false
-  console.log('onUpdated called!')
-})
-
 function shufflePlayer(array){
     for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -70,7 +60,6 @@ async function onCreateDeck(){
             gamingDeck.value.remaining = data.remaining
             drawingDeck.value = data.cards
         }
-        // onCardAnimation.value = true
         console.log('drawingDeck',drawingDeck.value)
         
     })
@@ -78,23 +67,8 @@ async function onCreateDeck(){
 function onDarwCard(){
     isFirstDraw.value = true
     shufflePlayer(playerName.value)
-    // onCardAnimation.value = true
     onNextPlayer()
     console.log('cardIndex',cardIndex.value)
-    // fetch("https://deckofcardsapi.com/api/deck/"+deckTemplate.value.deck_id+"/draw/?count=52")
-    // .then((response) => response.json())
-    // .then((data) => {
-    //     gamingDeck.value =  {...data};
-    //     if(gamingDeck.value.cards.length != 0){
-    //         gamingDeck.value.cards = data.cards
-    //         gamingDeck.value.remaining = data.remaining
-    //         drawingDeck.value = data.cards
-    //     }
-    //     onCardAnimation.value = true
-    //     isFirstDraw.value = true
-        
-    // })
-    // onCardAnimation.value = false
 }
 function onStart(){
     isStart.value = !isStart.value
@@ -102,31 +76,14 @@ function onStart(){
 }
 
 function onNextCard(){
-    // onCardAnimation.value = false
     setTimeout( function(){
         drawingDeck.value.splice(0, 1);
     },200)
-    // setTimeout( function(){
-    //     onCardAnimation.value = true
-    // },500)
     
     if(drawingDeck.value[0].value == 'KING'){
         kingCard.value.push(drawingDeck.value[cardIndex.value])
     }
     onNextPlayer()
-
-    // setTimeout( function(){ 
-    //     onCardAnimation.value = true
-    //     setTimeout( function(){ 
-    //       cardIndex.value++
-    //     } , 125)
-    // } , 125)
-
-    // if(drawingDeck.value[cardIndex.value].value == 'KING'){
-    //     kingCard.value.push(drawingDeck.value[cardIndex.value])
-    // }
-    // onNextPlayer()
-   
 }
 function onNextPlayer(){
     playerIndex.value++
@@ -220,7 +177,7 @@ function checkEndGame(){
 .detail-container{
     color: white;
  }
- .img-card:active{
+ .img-card:active, .img-back-card:active{
     -webkit-animation: flip-out-hor-top 1.5s cubic-bezier(0.550, 0.085, 0.680, 0.530) both;
 	        animation: flip-out-hor-top 1.5s cubic-bezier(0.550, 0.085, 0.680, 0.530) both;
  }
@@ -248,7 +205,7 @@ function checkEndGame(){
     opacity: 0;
   }
 }
- .img-card{
+ .img-card,.img-back-card{
     -webkit-animation: flip-in-hor-top  1.5s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
 	        animation: flip-in-hor-top  1.5s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
 }
